@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "C:\\Users\\j03hu\\StudioProjects\\MandelbrotMapsAndroidBackUp\\app\\build\\intermediates\\res\\merged\\debug\\layout_fractalscreen.xml.flat",
+        "source": "C:\\Users\\j03hu\\StudioProjects\\MandelbrotMapsAndroidBackUp\\app\\src\\main\\res\\layout\\fractalscreen.xml"
+    },
+    {
+        "merged": "C:\\Users\\j03hu\\StudioProjects\\MandelbrotMapsAndroidBackUp\\app\\build\\intermediates\\res\\merged\\debug\\menu_mainmenu.xml.flat",
+        "source": "C:\\Users\\j03hu\\StudioProjects\\MandelbrotMapsAndroidBackUp\\app\\src\\main\\res\\menu\\mainmenu.xml"
+    },
+    {
+        "merged": "C:\\Users\\j03hu\\StudioProjects\\MandelbrotMapsAndroidBackUp\\app\\build\\intermediates\\res\\merged\\debug\\layout_detailcontrol.xml.flat",
+        "source": "C:\\Users\\j03hu\\StudioProjects\\MandelbrotMapsAndroidBackUp\\app\\src\\main\\res\\layout\\detailcontrol.xml"
+    },
+    {
+        "merged": "C:\\Users\\j03hu\\StudioProjects\\MandelbrotMapsAndroidBackUp\\app\\build\\intermediates\\res\\merged\\debug\\layout_main.xml.flat",
+        "source": "C:\\Users\\j03hu\\StudioProjects\\MandelbrotMapsAndroidBackUp\\app\\src\\main\\res\\layout\\main.xml"
+    },
+    {
+        "merged": "C:\\Users\\j03hu\\StudioProjects\\MandelbrotMapsAndroidBackUp\\app\\build\\intermediates\\res\\merged\\debug\\xml_settings.xml.flat",
+        "source": "C:\\Users\\j03hu\\StudioProjects\\MandelbrotMapsAndroidBackUp\\app\\src\\main\\res\\xml\\settings.xml"
+    },
+    {
+        "merged": "C:\\Users\\j03hu\\StudioProjects\\MandelbrotMapsAndroidBackUp\\app\\build\\intermediates\\res\\merged\\debug\\drawable_icon.png.flat",
+        "source": "C:\\Users\\j03hu\\StudioProjects\\MandelbrotMapsAndroidBackUp\\app\\src\\main\\res\\drawable\\icon.png"
+    }
+]

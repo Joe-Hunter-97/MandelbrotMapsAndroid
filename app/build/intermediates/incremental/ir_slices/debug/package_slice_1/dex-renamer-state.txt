@@ -1,0 +1,4 @@
+#Thu Jan 10 14:06:45 GMT 2019
+base.0=C\:\\Users\\j03hu\\StudioProjects\\MandelbrotMapsAndroidBackUp\\app\\build\\intermediates\\transforms\\dexMerger\\debug\\1
+path.0=classes.dex
+renamed.0=classes.dex

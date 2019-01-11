@@ -1,0 +1,65 @@
+ECLIPSE ANDROID PROJECT IMPORT SUMMARY
+======================================
+
+Ignored Files:
+--------------
+The following files were *not* copied into the new Gradle project; you
+should evaluate whether these are still needed in your project and if
+so manually move them:
+
+* .gradle\
+* .gradle\4.3\
+* .gradle\4.3\fileChanges\
+* .gradle\4.3\fileChanges\last-build.bin
+* .gradle\4.3\fileHashes\
+* .gradle\4.3\fileHashes\fileHashes.lock
+* .gradle\4.3\taskHistory\
+* .gradle\4.3\taskHistory\taskHistory.lock
+* .gradle\4.6\
+* .gradle\4.6\fileChanges\
+* .gradle\4.6\fileChanges\last-build.bin
+* .gradle\4.6\fileHashes\
+* .gradle\4.6\fileHashes\fileHashes.lock
+* .gradle\buildOutputCleanup\
+* .gradle\buildOutputCleanup\buildOutputCleanup.lock
+* .gradle\buildOutputCleanup\cache.properties
+* .idea\
+* .idea\MandelbrotMapsAndroid.iml
+* .idea\codeStyles\
+* .idea\codeStyles\Project.xml
+* .idea\misc.xml
+* .idea\modules.xml
+* .idea\runConfigurations.xml
+* .idea\workspace.xml
+
+Moved Files:
+------------
+Android Gradle projects use a different directory structure than ADT
+Eclipse projects. Here's how the projects were restructured:
+
+* AndroidManifest.xml => app\src\main\AndroidManifest.xml
+* res\ => app\src\main\java\
+* res\drawable\icon.png => app\src\main\resources\drawable\icon.png
+* res\layout\detailcontrol.xml => app\src\main\resources\layout\detailcontrol.xml
+* res\layout\fractalscreen.xml => app\src\main\resources\layout\fractalscreen.xml
+* res\layout\main.xml => app\src\main\resources\layout\main.xml
+* res\menu\mainmenu.xml => app\src\main\resources\menu\mainmenu.xml
+* res\values\arrays.xml => app\src\main\resources\values\arrays.xml
+* res\values\strings.xml => app\src\main\resources\values\strings.xml
+* res\xml\settings.xml => app\src\main\resources\xml\settings.xml
+* src\ => app\src\main\java\
+
+Next Steps:
+-----------
+You can now build the project. The Gradle project needs network
+connectivity to download dependencies.
+
+Bugs:
+-----
+If for some reason your project does not build, and you determine that
+it is due to a bug or limitation of the Eclipse to Gradle importer,
+please file a bug at http://b.android.com with category
+Component-Tools.
+
+(This import summary is for your information only, and can be deleted
+after import once you are satisfied with the results.)

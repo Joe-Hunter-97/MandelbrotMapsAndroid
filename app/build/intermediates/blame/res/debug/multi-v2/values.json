@@ -1,0 +1,47 @@
+{
+    "logs": [
+        {
+            "outputFile": "C:\\Users\\j03hu\\StudioProjects\\MandelbrotMapsAndroidBackUp\\app\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values\\values.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\j03hu\\StudioProjects\\MandelbrotMapsAndroidBackUp\\app\\src\\main\\res\\values\\strings.xml",
+                    "from": {
+                        "startLines": "82,17,2,83,6,4,15,7,5,38,23,3,13,9,11,10,84",
+                        "startColumns": "1,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1",
+                        "startOffsets": "5588,660,53,5631,271,157,608,338,207,1853,813,104,551,383,502,436,5694",
+                        "endLines": "82,21,2,83,6,4,15,7,5,80,36,3,13,9,11,10,84",
+                        "endColumns": "42,10,49,62,65,48,44,40,62,10,10,51,52,51,44,64,65",
+                        "endOffsets": "5629,807,101,5692,335,204,651,377,268,5584,1847,154,602,433,545,499,5758"
+                    },
+                    "to": {
+                        "startLines": "30,31,36,37,38,39,40,41,42,43,86,100,101,102,103,104,105",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "899,945,1093,1146,1212,1281,1333,1381,1425,1491,5185,6211,6266,6322,6377,6425,6493",
+                        "endLines": "30,35,36,37,38,39,40,41,42,85,99,100,101,102,103,104,105",
+                        "endColumns": "45,10,52,65,68,51,47,43,65,10,10,54,55,54,47,67,68",
+                        "endOffsets": "940,1088,1141,1207,1276,1328,1376,1420,1486,5180,6206,6261,6317,6372,6420,6488,6557"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\j03hu\\StudioProjects\\MandelbrotMapsAndroidBackUp\\app\\src\\main\\res\\values\\arrays.xml",
+                    "from": {
+                        "startLines": "10,17,24,33",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "454,655,861,1092",
+                        "endLines": "15,22,31,40",
+                        "endColumns": "19,19,19,19",
+                        "endOffsets": "644,850,1081,1311"
+                    },
+                    "to": {
+                        "startLines": "2,8,14,22",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,250,450,675",
+                        "endLines": "7,13,21,29",
+                        "endColumns": "19,19,19,19",
+                        "endOffsets": "245,445,670,894"
+                    }
+                }
+            ]
+        }
+    ]
+}

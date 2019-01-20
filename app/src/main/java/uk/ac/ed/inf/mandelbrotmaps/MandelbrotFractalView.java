@@ -169,42 +169,75 @@ public class MandelbrotFractalView extends AbstractFractalView{
 
 		double y0 = yMax - ( (double)yPixel * pixelSize ); //TODO This shouldn't be calculated every time
 		ComplexPoint currentPoint = new ComplexPoint(x0, y0);
+		iterationNr = f(x0,y0, maxIterations);
+		/*
 		// Start at x0, y0
 		x = x0;
 		y = y0;
-		
+
 		//Run iterations over this point
 		for (iterationNr=0; iterationNr<maxIterations; iterationNr++) {
 			// z^2 + c
 			newx = (x*x) - (y*y) + x0;
 			newy = (2 * x * y) + y0;
-		
+
 			x = newx;
 			y = newy;
-		
+
 			// Well known result: if distance is >2, escapes to infinity...
 			if ( (x*x + y*y) > 4) {
 				inside = false;
 				break;
 			}
 		}
+		*/
 		
-		if(inside)
+		if(iterationNr < 0)
 			return colourer.colourInsidePoint();
 		else
 			if (displayingDomains) {
-				preperiod = MisiurewiczDomainUtill.whatIsPreperiod(currentPoint, period, 30);
+				preperiod = MisiurewiczDomainUtill.whatIsPreperiod(currentPoint, period, maxIterations/8);
 				if (preperiod == 0) {
 					return colourer.colourOutsidePoint(iterationNr, maxIterations);
 				} else {
-					//Log.d("Misiurewicz domains", "preperiod = " + preperiod);
+					if (xPixel == 1) {
+						Log.d("Misiurewicz domains", "preperiod = " + preperiod);
+					}
 					return colourer.colourDomain(preperiod, period, iterationNr, maxIterations);
 				}
 			}else{
 				return colourer.colourOutsidePoint(iterationNr, maxIterations);
 			}
 	}
-	
+
+	public int f(double x0, double y0,  int maxIterations){
+		int result;
+		double  x,y;
+		double newx, newy;
+		boolean inside = true;
+
+		// Start at x0, y0
+		x = x0;
+		y = y0;
+		//Run iterations over this point
+		for (result=0; result<maxIterations; result++) {
+			// z^2 + c
+			newx = (x*x) - (y*y) + x0;
+			newy = (2 * x * y) + y0;
+
+			x = newx;
+			y = newy;
+
+			// Well known result: if distance is >2, escapes to infinity...
+			if ( (x*x + y*y) > 4) {
+				inside = false;
+				break;
+			}
+		}
+		if (inside){result = -1;}
+
+		return result;
+	}
 	
 	public double[] getJuliaParams(float touchX, float touchY)
 	{
@@ -263,8 +296,9 @@ public class MandelbrotFractalView extends AbstractFractalView{
 		invalidate();
 	}
 
-	public void displayDomains(){
+	public void displayDomains(int period){
 		displayingDomains = true;
+		this.period = period;
 	}
 
 	public void stopDisplayingDomains(){
@@ -275,7 +309,7 @@ public class MandelbrotFractalView extends AbstractFractalView{
 		return period;
 	}
 
-	public ComplexPoint findMPoint(int preperiod, ComplexPoint touchCompPoint ){
+	public MisiurewiczPoint findMPoint(int preperiod, ComplexPoint touchCompPoint ){
 		return MisiurewiczPointUtill.findMisiurewiczPoint(preperiod, period, touchCompPoint, pixelSize);
 	}
 }

@@ -39,33 +39,31 @@ class MisiurewiczPoints {
 class ComplexPoint{
     private double x;
     private double y;
-    protected double magnification;
+    protected double mMagnificationFactor = 0;
+    protected double mRotation = 0;
+    protected double jMagnificationFactor = 0;
+    protected double jRotation = 0;
 
     ComplexPoint(double x, double y){
         this.x = x;
         this.y = y;
     }
 
-    ComplexPoint(double x, double y, double magnification){
+    ComplexPoint(double x, double y, double mMagnification, double jMagnification, double mRotation, double jRotation){
         this.x = x;
         this.y = y;
-        this.magnification = magnification;
+        this.mMagnificationFactor = mMagnification;
+        this.jMagnificationFactor = jMagnification;
+        this.mRotation = mRotation;
+        this.jRotation = jRotation;
     }
 
     public double getX(){
         return x;
     }
 
-    public void setX(double x) {
-        this.x = x;
-    }
-
     public double getY(){
         return y;
-    }
-
-    public void setY(double y) {
-        this.y = y;
     }
 
     public static ComplexPoint add(ComplexPoint a, ComplexPoint b){
@@ -83,6 +81,10 @@ class ComplexPoint{
         return result;
     }
 
+    public static double abv(ComplexPoint a){
+        return Math.sqrt((a.getX() * a.getX()) + (a.getY() * a.getY()));
+    }
+
     public static ComplexPoint divide(ComplexPoint a, ComplexPoint b){
         double numerator = Math.pow(b.getX(), 2) + Math.pow(b.getY(), 2);
         double denominatorX = (a.getX() * b.getX()) - (a.getY() * b.getY());
@@ -95,35 +97,79 @@ class ComplexPoint{
         ComplexPoint diff = ComplexPoint.subtract(b, a);
         return Math.sqrt(Math.pow(diff.getX(), 2) + Math.pow(diff.getY(), 2));
     }
+
+    public static double arg(ComplexPoint a){
+        return Math.atan2(a.getX(), a.getY());
+    }
+
+    public static ComplexPoint sqrRoot(ComplexPoint c){
+        double a = c.getX();
+        double b = c.getY();
+        double resultX = Math.sqrt((Math.sqrt(Math.pow(a,2) + Math.pow(b,2)) + a)/2);
+        double resultY = Math.sqrt((Math.sqrt(Math.pow(a,2) + Math.pow(b,2)) - a)/2);
+        return  new ComplexPoint(resultX, resultY);
+    }
+
+    public static ComplexPoint inversion(ComplexPoint c){
+        double x = c.getX();
+        double y = c.getY();
+        double resultX = x/(Math.pow(x,2) + Math.pow(y,2));
+        double resultY = -y/(Math.pow(x,2) + Math.pow(y,2));
+        return new ComplexPoint(resultX, resultY);
+
+    }
 }
 
 
 class MisiurewiczPoint extends ComplexPoint{
-    public MisiurewiczPoint(double x, double y){
+    int preperiod;
+    int period;
+
+    public MisiurewiczPoint(double x, double y, int preperiod, int period){
         super(x,y);
-    }
-    public MisiurewiczPoint(double x, double y, double magnification){
-        super(x,y,magnification);
+        this.preperiod = preperiod;
+        this.period = period;
+        ComplexPoint compP = new ComplexPoint(x,y);
+        ComplexPoint a = MisiurewiczPointUtill.applyFDash(3,compP, compP);
+        ComplexPoint uDash = MisiurewiczPointUtill.applyuDash(period, preperiod, compP);
+        mMagnificationFactor = ComplexPoint.abv(uDash);
+        mRotation = ComplexPoint.arg(uDash);
+        jMagnificationFactor = ComplexPoint.abv(a);
+        jRotation = ComplexPoint.arg(a);
+
     }
 
-    public double getMagnification() {
-        return magnification;
+    public MisiurewiczPoint(double x, double y, double mMagnification, double jMagnification, double mRotation, double jRotation){ super(x,y); }
+
+    public double getmMagnification() {
+        return mMagnificationFactor;
     }
 
-    public void setMagnification(double magnification) {
-        this.magnification = magnification;
+    public double getmRotation() {
+        return mRotation;
     }
+
+    public double getjMagnification() {
+        return jMagnificationFactor;
+    }
+
+    public double getjRotation() {
+        return jRotation;
+    }
+
+    public int getPreperiod() {return preperiod;}
+
+    public int getPeriod() { return period; }
 }
 
 class MisiurewiczPointUtill{
-    public static ComplexPoint findMisiurewiczPoint(int preperiod, int period, ComplexPoint guess, double pixleSize){
+    public static MisiurewiczPoint findMisiurewiczPoint(int preperiod, int period, ComplexPoint guess, double pixleSize){
+        Log.d("Finding MPoint", "Guess was X = " + guess.getX() + " Y = " + guess.getY());
         ComplexPoint c = new ComplexPoint(guess.getX(), guess.getY());
-        ComplexPoint prevC = new ComplexPoint(10, 10);
-        double prevDistance;
+        ComplexPoint prevC ;
         double currentDistance = pixleSize + 1;
         int count = 0;
-        while (currentDistance > pixleSize/100000000) {
-            count++;
+        while (currentDistance > pixleSize/1000000 && count < 10000) {
             ComplexPoint g2 = ComplexPoint.subtract(applyF(preperiod + period, c, c), applyF(preperiod, c, c));
             ComplexPoint h2 = ComplexPoint.subtract(applyF(period, c, c), applyF(0, c, c));
             for (int i = 1; i <= preperiod - 1; i++) {
@@ -142,13 +188,27 @@ class MisiurewiczPointUtill{
             prevC = c;
             c = ComplexPoint.subtract(c, ComplexPoint.divide(f2, f2Dash));
             currentDistance = ComplexPoint.distanceBetween(c, prevC);
+            if (count%1000 == 0 || count < 10){
+                Log.d("Finding MPoint","Current Count = " + count);
+                Log.d("Finding MPoint", "Current C is  X = " + c.getX() + " Y = " + c.getY());
+                Log.d("Calculating MPoint","g2X = " + g2.getX() + " g2Y = " + g2.getY());
+                Log.d("Calculating MPoint","h2X = " + h2.getX() + " h2Y = " + h2.getY());
+                Log.d("Calculating MPoint","f2X = " + f2.getX() + " f2Y = " + f2.getY());
+                Log.d("Calculating MPoint","g2DashX = " + g2Dash.getX() + " g2DashY = " + g2Dash.getY());
+                Log.d("Calculating MPoint","h2Dash = " + h2Dash.getX() + " h2DashY = " + h2Dash.getY());
+                Log.d("Calculating MPoint","f2DashX = " + f2Dash.getX() + " f2DashY = " + f2Dash.getY());
+
+            }
+            count++;
         }
 
         Log.d("Finding MPoint", "Count was = " + count);
-        return c;
+        Log.d("Finding MPoint", "Current MPoint X = " + c.getX() + " Y = " + c.getY());
+        MisiurewiczPoint mPoint = new MisiurewiczPoint(c.getX(), c.getY(), preperiod, period);
+        return mPoint;
     }
 
-    private static ComplexPoint applyFDash(int itters, ComplexPoint c, ComplexPoint z ){
+    public static ComplexPoint applyFDash(int itters, ComplexPoint c, ComplexPoint z ){
         ComplexPoint point = new ComplexPoint(z.getX(), z.getY());
 
         for (int i = 0; i <= itters; i++){
@@ -159,7 +219,7 @@ class MisiurewiczPointUtill{
         return point;
     }
 
-    private static ComplexPoint applyF(int itters, ComplexPoint c, ComplexPoint z ){
+    public static ComplexPoint applyF(int itters, ComplexPoint c, ComplexPoint z ){
         ComplexPoint point = new ComplexPoint(z.getX(), z.getY());
 
         for (int i = 0; i <= itters; i++){
@@ -168,6 +228,16 @@ class MisiurewiczPointUtill{
         }
 
         return point;
+    }
+    public static ComplexPoint applyWDash(int period, int preperiod, ComplexPoint c){
+        return ComplexPoint.multiply(applyFDash((period + preperiod), c, c ), applyFDash(preperiod, c, c));
+    }
+    public static ComplexPoint applyQ(ComplexPoint c){
+        return ComplexPoint.subtract(new ComplexPoint(1,0), (ComplexPoint.sqrRoot(ComplexPoint.subtract(new ComplexPoint(1,0), ComplexPoint.multiply(new ComplexPoint(4,0), c)))));
+    }
+
+    public static ComplexPoint applyuDash(int period, int preperiod, ComplexPoint c){
+        return ComplexPoint.multiply(ComplexPoint.inversion( ComplexPoint.subtract(applyQ(c), new ComplexPoint(1,0))), applyWDash(period, preperiod, c));
     }
 }
 
@@ -178,7 +248,7 @@ class MisiurewiczDomainUtill{
         ComplexPoint z = c;
         ComplexPoint zp = c;
         int q = 0;
-        double mq2 = 1;
+        double mq2 = 100;
         for (int n = 0; n < p; ++n){
             z = ComplexPoint.add(ComplexPoint.multiply(z,z), c);
         }
@@ -194,3 +264,29 @@ class MisiurewiczDomainUtill{
         return q;
     }
 }
+
+class FindMPointThread extends Thread {
+        private volatile boolean abortThisRendering = false;
+        public boolean isRunning = false;
+        private ComplexPoint c;
+        private  int preperiod;
+
+
+        public FindMPointThread(int preperiod, ComplexPoint touchCompPoint ){
+            this.preperiod = preperiod;
+            //setPriority(Thread.MAX_PRIORITY);
+        }
+
+        public boolean abortSignalled() {
+            return abortThisRendering;
+        }
+
+        public boolean isRunning() {
+        return isRunning;
+        }
+
+        public void run() {
+            isRunning = true;
+            isRunning = false;
+        }
+    }

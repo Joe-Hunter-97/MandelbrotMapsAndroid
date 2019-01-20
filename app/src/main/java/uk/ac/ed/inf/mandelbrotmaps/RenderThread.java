@@ -31,10 +31,6 @@ class RenderThread extends Thread {
 	}
 	
 	public void run() {
-		MisiurewiczPoints mPoints = new MisiurewiczPoints();
-		mPoints.addPoint(new MisiurewiczPoint(-0.77568377, 0.13646737));
-		mPoints.addPoint(new MisiurewiczPoint(-1.54368901269109 , 0));
-
         while(true) {
             try {
                 Rendering newRendering = mjCanvas.getNextRendering(threadID);

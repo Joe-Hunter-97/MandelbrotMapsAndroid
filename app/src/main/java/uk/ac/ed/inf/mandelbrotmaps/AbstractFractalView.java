@@ -792,7 +792,7 @@ abstract class AbstractFractalView extends View {
 				/*Recreate the bitmap - all the render thread completion guarantees is that the arrays
 				are full. onDraw() may not have run before saving.*/
 				fractalBitmap = Bitmap.createBitmap(fractalPixels, 0, getWidth(), getWidth(), getHeight(), Bitmap.Config.RGB_565);
-				fractalBitmap.compress(Bitmap.CompressFormat.PNG, 90, output);
+				//fractalBitmap.compress(Bitmap.CompressFormat.PNG, 90, output);
 
 				output.close();				
 				//Log.d(TAG, "Wrote image out to " + imagefile.getAbsolutePath());
@@ -864,6 +864,9 @@ abstract class AbstractFractalView extends View {
 	/* Stop any rendering and return to "home" position */
 	public void reset(){
 		stopAllRendering();
+		if (fractalViewSize == FractalViewSize.HALF){ parentActivity.stopEqualViews(); }
+		if (parentActivity.displayingDomains){ parentActivity.stopDisplayingDomains();}
+		if (parentActivity.showingLittle){parentActivity.removeLittleView();}
 		parentActivity.showPoint = false;
 		bitmapCreations = 0;
 		rotation = 0;
@@ -873,11 +876,7 @@ abstract class AbstractFractalView extends View {
 		fractalPixels = new int[getWidth() * getHeight()];
 		clearPixelSizes();
 		canvasHome();
-		if (parentActivity.displayingDomains){ parentActivity.stopDisplayingDomains();}
-		//if (fractalViewSize == FractalViewSize.HALF){ parentActivity.stopEqualViews(); }
-
-
-
+		invalidate();
         //postInvalidate();
 	}
 	
@@ -1011,7 +1010,7 @@ abstract class AbstractFractalView extends View {
 			// Set y0 (im part of c)
 			//y0 = yMax - ( (double)yPixel * pixelSize );			
 		
-			
+
 			for (xPixel=xPixelMin; xPixel<xPixelMax+1-pixelBlockSize; xPixel+=pixelBlockSize) {					
 				//Check to see if this pixel is already iterated to the necessary block size
 				if(fractalViewSize == FractalViewSize.LARGE && pixelSizes[(imgWidth*yPixel) + xPixel] <= pixelBlockSize) {

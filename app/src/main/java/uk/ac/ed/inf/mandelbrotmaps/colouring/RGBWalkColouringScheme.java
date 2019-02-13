@@ -135,12 +135,12 @@ public class RGBWalkColouringScheme implements ColouringScheme {
     public int colourDomain(int preperiod, int period, int iterations, int maxIterations){
         int colourCodeR, colourCodeG, colourCodeB;
         double colourCode;
-        colourCode = ((double) preperiod /  (double)period);
+        colourCode = ((double) preperiod /  (double)period) * 1000;
         colourCodeR = Math.min((int)(255 * 5*colourCode), 255);
         colourCodeG = (int)(200*colourCode);
         colourCodeB = (int)(127.5 - 127.5*Math.cos(6 * Math.PI * colourCode));
 
-        int colourCodeHex = (0xFF << 24) + (colourCodeR<< 8) + (colourCodeG << 16) + (colourCodeB);
+        int colourCodeHex = (0xFF << 24) + (colourCodeR) + (colourCodeG << 8) + (colourCodeB<< 16);
         return colourCodeHex;
     }
 }

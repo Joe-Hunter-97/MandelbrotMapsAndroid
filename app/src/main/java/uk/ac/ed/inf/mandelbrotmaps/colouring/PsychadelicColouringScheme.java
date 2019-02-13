@@ -41,7 +41,7 @@ public class PsychadelicColouringScheme implements ColouringScheme {
      * @return The RGB colour for the point
      */
     public int colourInsidePoint() {
-        return 0xFFFFFFFF;
+        return 0xFF000000;//0xFFFFFFFF;
     }
        
     /**
@@ -148,7 +148,7 @@ public class PsychadelicColouringScheme implements ColouringScheme {
     public int colourDomain(int preperiod, int period, int iterations, int maxIterations){
         int colourCodeR, colourCodeG, colourCodeB;
         double colourCode;
-        colourCode = ((double) preperiod /  (double)period);
+        colourCode = ((double) preperiod /  (double)period) * 1000;
         colourCodeR = Math.min((int)(255 * 5*colourCode), 255);
         colourCodeG = (int)(200*colourCode);
         colourCodeB = (int)(127.5 - 127.5*Math.cos(6 * Math.PI * colourCode));

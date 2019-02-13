@@ -132,9 +132,12 @@ class MisiurewiczPoint extends ComplexPoint{
         ComplexPoint compP = new ComplexPoint(x,y);
         ComplexPoint a = MisiurewiczPointUtill.applyFDash(3,compP, compP);
         ComplexPoint uDash = MisiurewiczPointUtill.applyuDash(period, preperiod, compP);
-        mMagnificationFactor = ComplexPoint.abv(uDash);
+        double mMag = ComplexPoint.abv(uDash);
+        double jMag = ComplexPoint.abv(a);
+        double numerator = Math.min(mMag, jMag);
+        mMagnificationFactor =mMag / numerator;
         mRotation = ComplexPoint.arg(uDash);
-        jMagnificationFactor = ComplexPoint.abv(a);
+        jMagnificationFactor = jMag / numerator;
         jRotation = ComplexPoint.arg(a);
 
     }
@@ -169,7 +172,7 @@ class MisiurewiczPointUtill{
         ComplexPoint prevC ;
         double currentDistance = pixleSize + 1;
         int count = 0;
-        while (currentDistance > pixleSize/1000000 && count < 10000) {
+        while (currentDistance > pixleSize/1000000 && count < 10000|| count < 50) {
             ComplexPoint g2 = ComplexPoint.subtract(applyF(preperiod + period, c, c), applyF(preperiod, c, c));
             ComplexPoint h2 = ComplexPoint.subtract(applyF(period, c, c), applyF(0, c, c));
             for (int i = 1; i <= preperiod - 1; i++) {
@@ -208,6 +211,15 @@ class MisiurewiczPointUtill{
         return mPoint;
     }
 
+    public static ComplexPoint applyFDash1(int itters, ComplexPoint c, ComplexPoint z ){
+        ComplexPoint point = z;
+
+        for (int i = 0; i <= itters; i++){
+            point = ComplexPoint.add(ComplexPoint.add(point, point), c);
+        }
+        return point;
+    }
+
     public static ComplexPoint applyFDash(int itters, ComplexPoint c, ComplexPoint z ){
         ComplexPoint point = new ComplexPoint(z.getX(), z.getY());
 
@@ -219,8 +231,22 @@ class MisiurewiczPointUtill{
         return point;
     }
 
+    /*
+    public static ComplexPoint applyFDash(int itters, ComplexPoint c, ComplexPoint z ){
+        ComplexPoint zn = z;
+        ComplexPoint zDashn = new ComplexPoint(1,0);
+        //ComplexPoint zDashn = ComplexPoint.add(ComplexPoint.multiply(new ComplexPoint(2,2), ComplexPoint.multiply(zn,new ComplexPoint(1,1))),new ComplexPoint(1,1));
+
+        for (int i = 1; i <= itters; i++){
+            zDashn = ComplexPoint.add(ComplexPoint.multiply(new ComplexPoint(2,0), ComplexPoint.multiply(zn,zDashn)),new ComplexPoint(1,0));
+            zn = ComplexPoint.add(ComplexPoint.multiply(zn, zn), c);
+        }
+        return zDashn;
+    }
+    */
+
     public static ComplexPoint applyF(int itters, ComplexPoint c, ComplexPoint z ){
-        ComplexPoint point = new ComplexPoint(z.getX(), z.getY());
+        ComplexPoint point = z;
 
         for (int i = 0; i <= itters; i++){
             point = ComplexPoint.multiply(point, point);
@@ -230,14 +256,20 @@ class MisiurewiczPointUtill{
         return point;
     }
     public static ComplexPoint applyWDash(int period, int preperiod, ComplexPoint c){
-        return ComplexPoint.multiply(applyFDash((period + preperiod), c, c ), applyFDash(preperiod, c, c));
+        return ComplexPoint.subtract(applyFDash((period + 1 + preperiod), c, c ), applyFDash(preperiod+1, c, c));
     }
+    /*
     public static ComplexPoint applyQ(ComplexPoint c){
         return ComplexPoint.subtract(new ComplexPoint(1,0), (ComplexPoint.sqrRoot(ComplexPoint.subtract(new ComplexPoint(1,0), ComplexPoint.multiply(new ComplexPoint(4,0), c)))));
     }
+    */
+
+    public static ComplexPoint applyQ(int period, int preperiod, ComplexPoint c){
+        return applyFDash(period, c, applyF(preperiod, c, c));
+    }
 
     public static ComplexPoint applyuDash(int period, int preperiod, ComplexPoint c){
-        return ComplexPoint.multiply(ComplexPoint.inversion( ComplexPoint.subtract(applyQ(c), new ComplexPoint(1,0))), applyWDash(period, preperiod, c));
+        return ComplexPoint.multiply(ComplexPoint.inversion( ComplexPoint.subtract(applyQ(period, preperiod, c), new ComplexPoint(1,0))), applyWDash(period, preperiod, c));
     }
 }
 
@@ -263,6 +295,24 @@ class MisiurewiczDomainUtill{
         }
         return q;
     }
+
+    public static int whatIsMinN(ComplexPoint c, int maxIters){
+        ComplexPoint z = c;
+        ComplexPoint origin = new ComplexPoint(0,0);
+
+        int N= 0;
+        double currentMin = 100;
+        for (int n = 0; n < maxIters; ++n){
+            double q2 = ComplexPoint.distanceBetween(z, origin);
+            if(q2 < currentMin){
+                currentMin = q2;
+                N = n;
+            }
+            z = ComplexPoint.add(ComplexPoint.multiply(z, z), c);
+        }
+        return N;
+    }
+
 }
 
 class FindMPointThread extends Thread {

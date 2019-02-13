@@ -870,6 +870,8 @@ abstract class AbstractFractalView extends View {
 		parentActivity.showPoint = false;
 		bitmapCreations = 0;
 		rotation = 0;
+		this.parentActivity.mRotation = 0;
+		this.parentActivity.jRotation = 0;
 		this.parentActivity.mMagnification = 1;
         this.parentActivity.jMagnification = 1;
 		matrix.reset();

@@ -192,12 +192,14 @@ public class MandelbrotFractalView extends AbstractFractalView{
 		}
 		*/
 		
-		if(iterationNr < 0)
+		if(iterationNr < 0 && !displayingDomains)
 			return colourer.colourInsidePoint();
 		else
 			if (displayingDomains) {
+				//preperiod = MisiurewiczDomainUtill.whatIsMinN(currentPoint, maxIterations);
 				preperiod = MisiurewiczDomainUtill.whatIsPreperiod(currentPoint, period, maxIterations/8);
 				if (preperiod == 0) {
+					//return colourer.colourInsidePoint();
 					return colourer.colourOutsidePoint(iterationNr, maxIterations);
 				} else {
 					if (xPixel == 1) {

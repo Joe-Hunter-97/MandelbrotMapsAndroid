@@ -30,15 +30,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-              
-        <activity android:name = ".UIMockup"
-        		android:label="UIMockup"
-        		android:screenOrientation="landscape"
-        		android:configChanges="orientation"/>
-        		
-        <activity android:name = ".BitmapActivity"
-        		android:label="BitmapActivity"
-        		android:screenOrientation="landscape"
-        		android:configChanges="orientation"/>
+        <activity
+            android:name=".ChoosePeriod"
+            android:theme="@android:style/Theme.Holo.Dialog"
+            android:label="ChoosePeriod"
+        />
     </application>
 </manifest>

@@ -43,4 +43,7 @@ public interface ColouringScheme {
      * @return returns RGB colour as int
      */
     public int colourDomain(int preperiod, int period, int iterations, int maxIterations);
+
+    public int colourADomain(int preperiod, int period, int iterations, int maxIterations);
+    public int colourOutsidePointDisplayingDoms(int iterationNr, int maxIterations);
 }

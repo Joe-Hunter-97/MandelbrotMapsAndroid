@@ -20,6 +20,10 @@
         "source": "C:\\Users\\j03hu\\StudioProjects\\MandelbrotMapsAndroidBackUp\\app\\src\\main\\res\\xml\\settings.xml"
     },
     {
+        "merged": "C:\\Users\\j03hu\\StudioProjects\\MandelbrotMapsAndroidBackUp\\app\\build\\intermediates\\res\\merged\\debug\\layout_chooseperiod.xml.flat",
+        "source": "C:\\Users\\j03hu\\StudioProjects\\MandelbrotMapsAndroidBackUp\\app\\src\\main\\res\\layout\\chooseperiod.xml"
+    },
+    {
         "merged": "C:\\Users\\j03hu\\StudioProjects\\MandelbrotMapsAndroidBackUp\\app\\build\\intermediates\\res\\merged\\debug\\drawable_icon.png.flat",
         "source": "C:\\Users\\j03hu\\StudioProjects\\MandelbrotMapsAndroidBackUp\\app\\src\\main\\res\\drawable\\icon.png"
     }

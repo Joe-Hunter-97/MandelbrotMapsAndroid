@@ -17,11 +17,17 @@
         android:id="@+id/makeViewsEqual"
         android:title="Equal Views" />
     <item
-        android:id="@+id/toggleDisplayDomains"
-        android:title="DisplayDomains" />
+        android:id="@+id/toggleDisplayMDomains"
+        android:title="Display MDomains" />
+    <item
+        android:id="@+id/toggleDisplayADomains"
+        android:title="Display Atom Domains" />
     <item
         android:id="@+id/showCurrentMPoint"
-        android:title="ShowCurrentMPoint" />
+        android:title="Show Current MPoint" />
+    <item
+        android:id="@+id/choosePeriod"
+        android:title="Change Period" />
     <item
         android:id="@+id/showMPoint1"
         android:title="showMPoint1" />

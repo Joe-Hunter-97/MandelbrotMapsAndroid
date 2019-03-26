@@ -45,7 +45,7 @@ public class DefaultColouringScheme implements ColouringScheme {
      * @return RGB colour as int
      */
     public int colourOutsidePoint(int iterations, int maxIterations){
-        if (iterations <= 20){
+        if (iterations <= 10){
             //return 0xFFFFFFFF;
             return 0xFF000000;
         }   
@@ -86,6 +86,21 @@ public class DefaultColouringScheme implements ColouringScheme {
         return colourCodeHex;
     }
 
+    public int colourADomain(int preperiod, int period, int iterations, int maxIterations){
+        int colourCodeR, colourCodeG, colourCodeB;
+        double colourCode;
+        colourCode = ((double) preperiod * (double)period) * 300;
+        colourCodeR = Math.min((int)(255 * 5*colourCode), 255);
+        colourCodeG = (int)(200*colourCode);
+        colourCodeB = (int)(127.5 - 127.5*Math.cos(6 * Math.PI * colourCode));
 
+        int colourCodeHex = ((maxIterations - iterations) << 24) + (colourCodeR) + (colourCodeG<< 8) + (colourCodeB<< 16);
+        return colourCodeHex;
+    }
+
+    public int colourOutsidePointDisplayingDoms(int iterationNr, int maxIterations){
+        int colourHex = (maxIterations - iterationNr << 24) + 0x00000000 ;
+        return colourHex;
+    }
 }
 

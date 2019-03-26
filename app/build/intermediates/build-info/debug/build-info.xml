@@ -5,32 +5,31 @@
     build-mode="COLD"
     density="xxhdpi"
     format="10"
-    ir-eligibility="COMPATIBLE"
-    plugin-version="3.3.0"
-    timestamp="1550013705391"
+    plugin-version="3.3.2"
+    timestamp="1553637344365"
     token="-9159566028590139278"
     verifier="COLD_SWAP_REQUESTED" >
 
     <task
         name="javac"
-        duration="1427" />
+        duration="0" />
     <task
         name="instant-run-dex"
         duration="0" />
     <task
         name="instant-run-transform"
-        duration="90" />
+        duration="0" />
     <task
         name="verifier"
-        duration="46" />
+        duration="0" />
 
     <artifact
-        location="C:\Users\j03hu\StudioProjects\MandelbrotMapsAndroidBackUp\app\build\intermediates\split-apk\debug\slices\slice_9.apk"
-        type="SPLIT" />
+        location="C:\Users\j03hu\StudioProjects\MandelbrotMapsAndroidBackUp\app\build\intermediates\instant-run-apk\debug\app-debug.apk"
+        type="SPLIT_MAIN" />
 
     <build
         build-mode="FULL"
-        timestamp="1550013033317"
+        timestamp="1553637158332"
         verifier="FULL_BUILD_REQUESTED" >
         <artifact
             location="C:\Users\j03hu\StudioProjects\MandelbrotMapsAndroidBackUp\app\build\intermediates\split-apk\debug\slices\slice_2.apk"
@@ -71,21 +70,11 @@
     </build>
     <build
         build-mode="COLD"
-        ir-eligibility="COMPATIBLE"
-        timestamp="1550013519126"
+        timestamp="1553637344365"
         verifier="COLD_SWAP_REQUESTED" >
         <artifact
-            location="C:\Users\j03hu\StudioProjects\MandelbrotMapsAndroidBackUp\app\build\intermediates\split-apk\debug\slices\slice_1.apk"
-            type="SPLIT" />
-    </build>
-    <build
-        build-mode="COLD"
-        ir-eligibility="COMPATIBLE"
-        timestamp="1550013705391"
-        verifier="COLD_SWAP_REQUESTED" >
-        <artifact
-            location="C:\Users\j03hu\StudioProjects\MandelbrotMapsAndroidBackUp\app\build\intermediates\split-apk\debug\slices\slice_9.apk"
-            type="SPLIT" />
+            location="C:\Users\j03hu\StudioProjects\MandelbrotMapsAndroidBackUp\app\build\intermediates\instant-run-apk\debug\app-debug.apk"
+            type="SPLIT_MAIN" />
     </build>
 
 </instant-run>

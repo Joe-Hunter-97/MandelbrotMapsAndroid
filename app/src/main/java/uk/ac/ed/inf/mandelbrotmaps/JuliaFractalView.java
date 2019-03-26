@@ -43,18 +43,10 @@ public class JuliaFractalView extends AbstractFractalView{
 		//stopAllRendering();
 		Log.d("JuliaParams","Setting Julia params");
 		Log.d("JuliaParams","newJuliaX = " + newJuliaX + " newJuliaY = " + newJuliaY);
-		if (parentActivity.showPoint){
-			juliaX = parentActivity.mPoint.getX();
-			juliaY = parentActivity.mPoint.getY();
 
-			/*double xRotated = juliaX;
-			double yRotated = juliaY;
-			if (rotation != 0){
-				xRotated = (xScreenCenter + ((juliaX-xScreenCenter)*Math.cos(this.rotation) - (juliaY-yScreenCenter)*Math.sin(this.rotation)));
-				yRotated = (yScreenCenter + ((juliaX-xScreenCenter)*Math.sin(this.rotation) + (juliaY-yScreenCenter)*Math.cos(this.rotation)));
-			}
-			*/
-			Log.d("JuliaParams","setting to Jparams To mPoint X = " + juliaX + " Y = " + juliaY);
+		if (parentActivity.showPoint){
+			juliaX = parentActivity.mMPoint.getX();
+			juliaY = parentActivity.mMPoint.getY();
 
 		}else {
 			juliaX = newJuliaX;

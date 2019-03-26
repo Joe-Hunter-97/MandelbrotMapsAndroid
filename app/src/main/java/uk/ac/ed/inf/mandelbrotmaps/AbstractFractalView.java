@@ -20,18 +20,14 @@ import android.preference.PreferenceManager;
 //import android.provider.Settings.System;
 import android.util.Log;
 import android.view.View;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
-import uk.ac.ed.inf.mandelbrotmaps.AbstractFractalView.FractalViewSize;
+
 import uk.ac.ed.inf.mandelbrotmaps.FractalActivity.FractalType;
 import uk.ac.ed.inf.mandelbrotmaps.colouring.ColouringScheme;
 import uk.ac.ed.inf.mandelbrotmaps.colouring.DefaultColouringScheme;
 import uk.ac.ed.inf.mandelbrotmaps.colouring.JuliaDefaultColouringScheme;
 import uk.ac.ed.inf.mandelbrotmaps.colouring.PsychadelicColouringScheme;
 import uk.ac.ed.inf.mandelbrotmaps.colouring.RGBWalkColouringScheme;
-
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
 
 
 abstract class AbstractFractalView extends View {
@@ -240,10 +236,12 @@ abstract class AbstractFractalView extends View {
 		}
 		
 		//Scaling
-		matrix.postScale(scaleFactor, scaleFactor, midX, midY);
-		scaleFactor = 1.0f;
-		midX = 0.0f;
-		midY = 0.0f;
+        if (!parentActivity.showPoint) {
+            matrix.postScale(scaleFactor, scaleFactor, midX, midY);
+            scaleFactor = 1.0f;
+            midX = 0.0f;
+            midY = 0.0f;
+        }
 		
 		//Create new image only if not dragging, zooming, or moving the Julia pin
 		if(controlmode == ControlMode.STATIC && !holdingPin) {
@@ -287,7 +285,7 @@ abstract class AbstractFractalView extends View {
 
         // Don't bother showing render progress on little views
         if (fractalViewSize == FractalViewSize.LITTLE) showRenderProgress = false;
-        int magnification;
+        double magnification;
         if(fractalType == FractalType.MANDELBROT){
             magnification = this.parentActivity.mMagnification;
 			Log.d("MagnificationTest","Mandelbrot magnification = " + magnification);
@@ -312,8 +310,8 @@ abstract class AbstractFractalView extends View {
                 rotation,
 				parentActivity.showPoint,
                 magnification,
-                parentActivity.mPoint.getX(),
-                parentActivity.mPoint.getY()
+                parentActivity.mMPoint.getX(),
+                parentActivity.mMPoint.getY()
         );
 
         postInvalidate();
@@ -865,7 +863,7 @@ abstract class AbstractFractalView extends View {
 	public void reset(){
 		stopAllRendering();
 		if (fractalViewSize == FractalViewSize.HALF){ parentActivity.stopEqualViews(); }
-		if (parentActivity.displayingDomains){ parentActivity.stopDisplayingDomains();}
+		if (parentActivity.displayingMDomains){ parentActivity.stopDisplayingMDomains();}
 		if (parentActivity.showingLittle){parentActivity.removeLittleView();}
 		parentActivity.showPoint = false;
 		bitmapCreations = 0;
@@ -945,10 +943,12 @@ abstract class AbstractFractalView extends View {
             final int noOfThreads,
             final double rotation,
 			final boolean goToPoint,
-			final int magnification,
+			final double magnification,
 			final double centeredX,
 			final double centeredY
 		) {
+
+		Log.d("maxitters", "max itters = " + getMaxIterations());
 	    RenderThread callingThread = renderThreadList.get(threadID);
 		
 		int maxIterations = getMaxIterations()*2;
@@ -959,27 +959,15 @@ abstract class AbstractFractalView extends View {
 		int pixelBlockA, pixelBlockB;
 		this.rotation = rotation;
 		if (fractalViewSize == FractalViewSize.HALF) {
-			/*if(getWidth() > 1000) {
-				if (rotation ==0) {
-					this.xMin = centeredX - ((graphArea[2] / magnification) * 0.75);
-				}else{
-					this.xMin = centeredX - ((graphArea[2] / magnification)/2);
-
-				}
-			}else{ */
-				this.xMin = centeredX - ((graphArea[2] / magnification)/ 2);
-		//	}
-			//this.xMin = (xMin / magnification)  + centeredX;
+			this.xMin = centeredX - ((graphArea[2] / magnification)/2);
             this.yMax = centeredY + (getHeight()*pixelSize/magnification)/2;
-			//this.yMax = (yMax / magnification)  + centeredY;
-			this.pixelSize = pixelSize / magnification;
+            this.pixelSize = pixelSize/ magnification;
+            Log.d("zoomCheck", "pixle size = " + pixelSize);
 		}else{
 				this.xMin = xMin;
 				this.yMax = yMax;
 				this.pixelSize = pixelSize;
 		}
-		Log.d("PixelSize", "PixelSize = " + this.pixelSize);
-
 		double x0 = 0, y0 = 0;
 		
 		int pixelIncrement = pixelBlockSize * noOfThreads;
@@ -1021,8 +1009,6 @@ abstract class AbstractFractalView extends View {
 
                 double xRotated = xPixel;
                 double yRotated = yPixel;
-                double xRotatedDiff = 0;
-                double yRotatedDiff = 0;
                 if (rotation != 0){
                     xRotated = (xScreenCenter + ((xPixel-xScreenCenter)*Math.cos(this.rotation) - (yPixel-yScreenCenter)*Math.sin(this.rotation)));
                     yRotated = (yScreenCenter + ((xPixel-xScreenCenter)*Math.sin(this.rotation) + (yPixel-yScreenCenter)*Math.cos(this.rotation)));
@@ -1060,6 +1046,36 @@ abstract class AbstractFractalView extends View {
 		notifyCompleteRender(threadID, pixelBlockSize);
 	}
 	abstract int pixelInSet(double xPixel, double yPixel, int maxIterations );
+
+	public static int darken(int color, double fraction) {
+		int red = Color.red(color);
+		int green = Color.green(color);
+		int blue = Color.blue(color);
+		red = darkenColor(red, fraction);
+		green = darkenColor(green, fraction);
+		blue = darkenColor(blue, fraction);
+		int alpha = Color.alpha(color);
+		return Color.argb(alpha, red, green, blue);
+	}
+
+	private static int darkenColor(int color, double fraction) {
+		return (int) Math.max(color - (color * fraction), 0);
+	}
+	public static int lighten(int color, double fraction) {
+		int red = Color.red(color);
+		int green = Color.green(color);
+		int blue = Color.blue(color);
+		red = lightenColor(red, fraction);
+		green = lightenColor(green, fraction);
+		blue = lightenColor(blue, fraction);
+		int alpha = Color.alpha(color);
+		return Color.argb(alpha, red, green, blue);
+	}
+
+	private static int lightenColor(int color, double fraction) {
+		return (int) Math.min(color + (color * fraction), 255);
+	}
+
 }
 
 

@@ -9,6 +9,10 @@ import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
+import uk.ac.ed.inf.mandelbrotmaps.colouring.ColouringScheme;
+import uk.ac.ed.inf.mandelbrotmaps.colouring.PsychadelicColouringScheme;
+import uk.ac.ed.inf.mandelbrotmaps.colouring.RGBWalkColouringScheme;
+
 public class MandelbrotFractalView extends AbstractFractalView{
 	
 	public float lastTouchX = 0;
@@ -29,7 +33,11 @@ public class MandelbrotFractalView extends AbstractFractalView{
 	
 	public float smallPinRadius = 5.0f;
 	public float largePinRadius = 20.0f;
-	private boolean displayingDomains = false;
+	private boolean displayingMDomains = false;
+	private boolean displayingADomains = false;
+	private int numOfColours = (int)Math.pow(255,3);
+	private ColouringScheme domainColourer= new RGBWalkColouringScheme();
+
 	private int period = 1;
 	
 	
@@ -151,7 +159,7 @@ public class MandelbrotFractalView extends AbstractFractalView{
 		fractalPixels = new int[getWidth() * getHeight()];
 		clearPixelSizes();
 		canvasHome();
-		displayingDomains = false;
+		displayingMDomains = false;
 
 		//postInvalidate();
 	}
@@ -192,12 +200,12 @@ public class MandelbrotFractalView extends AbstractFractalView{
 		}
 		*/
 		
-		if(iterationNr < 0 && !displayingDomains)
+		if(iterationNr < 0 && !displayingADomains)
 			return colourer.colourInsidePoint();
 		else
-			if (displayingDomains) {
+			if (displayingMDomains) {
 				//preperiod = MisiurewiczDomainUtill.whatIsMinN(currentPoint, maxIterations);
-				preperiod = MisiurewiczDomainUtill.whatIsPreperiod(currentPoint, period, maxIterations/8);
+				preperiod = MisiurewiczDomainUtill.whatIsPreperiod(currentPoint, period, maxIterations/10);
 				if (preperiod == 0) {
 					//return colourer.colourInsidePoint();
 					return colourer.colourOutsidePoint(iterationNr, maxIterations);
@@ -205,10 +213,30 @@ public class MandelbrotFractalView extends AbstractFractalView{
 					if (xPixel == 1) {
 						Log.d("Misiurewicz domains", "preperiod = " + preperiod);
 					}
-					return colourer.colourDomain(preperiod, period, iterationNr, maxIterations);
-				}
+					//return colourer.colourDomain(preperiod, period, iterationNr, maxIterations) +  (colourer.colourOutsidePoint(iterationNr, maxIterations))/2;
+					//int normalColour =  colourer.colourOutsidePoint(iterationNr, maxIterations);
+					//return  domainColourer.colourOutsidePoint(preperiod * 137 , maxIterations );
+					return domainColourer.colourOutsidePoint(preperiod * 137 , maxIterations );
+					}
 			}else{
-				return colourer.colourOutsidePoint(iterationNr, maxIterations);
+				if (displayingADomains){
+					preperiod = MisiurewiczDomainUtill.whatIsMinN(currentPoint , maxIterations/10);
+					/*if (preperiod == 0) {
+						//return colourer.colourInsidePoint();
+						return colourer.colourOutsidePoint(iterationNr, maxIterations);
+					} else {*/
+						if (xPixel == 1) {
+							Log.d("Atom domains", "preperiod = " + preperiod);
+						}
+						return domainColourer.colourOutsidePoint(preperiod * 137, maxIterations);
+					//}
+				}else {
+					if (displayingMDomains) {
+						return colourer.colourOutsidePoint(iterationNr, maxIterations)/2;
+					}else{
+						return colourer.colourOutsidePoint(iterationNr, maxIterations);
+					}
+				}
 			}
 	}
 
@@ -299,12 +327,22 @@ public class MandelbrotFractalView extends AbstractFractalView{
 	}
 
 	public void displayDomains(int period){
-		displayingDomains = true;
+		displayingMDomains = true;
 		this.period = period;
+		postInvalidate();
 	}
 
 	public void stopDisplayingDomains(){
-		displayingDomains = false;
+		displayingMDomains = false;
+	}
+
+	public void displayADomains(){
+		displayingADomains = true;
+		postInvalidate();
+	}
+
+	public void stopDisplayingADomains(){
+		displayingADomains = false;
 	}
 
 	public int getCurrentPeriod(){
@@ -312,6 +350,7 @@ public class MandelbrotFractalView extends AbstractFractalView{
 	}
 
 	public MisiurewiczPoint findMPoint(int preperiod, ComplexPoint touchCompPoint ){
+
 		return MisiurewiczPointUtill.findMisiurewiczPoint(preperiod, period, touchCompPoint, pixelSize);
 	}
 }

@@ -41,15 +41,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="uk.ac.ed.inf.mandelbrotmaps.UIMockup"
-            android:configChanges="orientation"
-            android:label="UIMockup"
-            android:screenOrientation="landscape" />
-        <activity
-            android:name="uk.ac.ed.inf.mandelbrotmaps.BitmapActivity"
-            android:configChanges="orientation"
-            android:label="BitmapActivity"
-            android:screenOrientation="landscape" />
+            android:name="uk.ac.ed.inf.mandelbrotmaps.ChoosePeriod"
+            android:label="ChoosePeriod"
+            android:theme="@android:style/Theme.Holo.Dialog" />
 
         <provider
             android:name="com.android.tools.ir.server.InstantRunContentProvider"

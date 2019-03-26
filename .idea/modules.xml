@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/MandelbrotMapsAndroidBackUp.iml" filepath="$PROJECT_DIR$/MandelbrotMapsAndroidBackUp.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/vavr-1.0.0-alpha-2/vavr-1.0.0-alpha-2.iml" filepath="$PROJECT_DIR$/vavr-1.0.0-alpha-2/vavr-1.0.0-alpha-2.iml" />
     </modules>
   </component>
 </project>

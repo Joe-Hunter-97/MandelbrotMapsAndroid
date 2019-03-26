@@ -8,6 +8,7 @@ import uk.ac.ed.inf.mandelbrotmaps.AbstractFractalView.FractalViewSize;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,6 +33,7 @@ import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
@@ -47,6 +49,8 @@ public class FractalActivity extends Activity implements OnTouchListener, OnScal
 	private final int SHARE_IMAGE_REQUEST = 0;
 	private final int RETURN_FROM_JULIA = 1;
 	private final int RETURN_FROM_DETAIL_CHANGE = 2;
+	private final int RETURN_FROM_PERIOD_CHANGE = 3;
+
 
 	// Shared pref keys
 	public static final String mandelbrotDetailKey = "MANDELBROT_DETAIL";
@@ -57,6 +61,7 @@ public class FractalActivity extends Activity implements OnTouchListener, OnScal
 	private final String PREVIOUS_JULIA_PARAMS = "prevJuliaParams";
 	private final String PREVIOUS_SHOWING_LITTLE = "prevShowingLittle";
 	private final String FIRST_TIME_KEY = "FirstTime";
+	public static final String PERIOD_CHANGED_KEY = "PERIOD_KEY";
 
 
 	// Type of fractal displayed in the main fractal view
@@ -110,21 +115,26 @@ public class FractalActivity extends Activity implements OnTouchListener, OnScal
 	public boolean showPoint = false;
 	private int zoomRefreshRate = 100;
 
-	public MisiurewiczPoint mPoint = new MisiurewiczPoint(0, 0, 0 ,0);
-	int mMagnification = 1;
-	int jMagnification = 1;
+	public MisiurewiczPoint mMPoint = new MisiurewiczPoint(0, 0, 0 ,0);
+	public ComplexPoint jMPoint = new MisiurewiczPoint(0, 0, 0 ,0);
+
+	double mMagnification = 1;
+	double jMagnification = 1;
+	double magnificationDiff = 0;
 	int pointCounter = 0;
 	double mRotation = 0;
 	double jRotation = 0;
-	double mMPointBase = 1.12;
-	double jMPointBase = 1.1;
+	double mPointBase = 1.1;
 	int pointCounterLimit = 101;
 	double mMPointRotation = 0;
 	double jMPointRotation = 0;
+	int setback = 30;
 
-	boolean displayingDomains = false;
-	int period = 1;
-	MisiurewiczPoint lastFoundMPoint = new MisiurewiczPoint(0, 0, 0,0);
+	boolean displayingMDomains = false;
+	boolean displayingADomains = false;
+	static int period = 1;
+	final int DEFAULT_PERIOD = 1;
+	MisiurewiczPoint lastFoundMPoint = new MisiurewiczPoint(-0.1011, 0.95629, 3, 1);
 
 
 	/*-----------------------------------------------------------------------------------*/
@@ -311,6 +321,15 @@ public class FractalActivity extends Activity implements OnTouchListener, OnScal
 						littleFractalView.reloadCurrentLocation();
 				}
 				break;
+
+			case RETURN_FROM_PERIOD_CHANGE:
+				boolean pChanged = data.getBooleanExtra(PERIOD_CHANGED_KEY, false);
+				if (pChanged && displayingMDomains) {
+					fractalView.reloadCurrentLocation();
+					if (showingLittle)
+						littleFractalView.reloadCurrentLocation();
+				}
+				break;
 		}
 	}
 
@@ -433,8 +452,8 @@ public class FractalActivity extends Activity implements OnTouchListener, OnScal
 		//---------------------------------------------
 		//----------------------------------------------
 
-		if (displayingDomains) {
-			stopDisplayingDomains();
+		if (displayingMDomains) {
+			stopDisplayingMDomains();
 		}
 		removeLittleView();
 
@@ -456,7 +475,7 @@ public class FractalActivity extends Activity implements OnTouchListener, OnScal
 
 			double[] jParams;
 
-			jParams = ((MandelbrotFractalView) fractalView).getJuliaParams(relativeLayout.getWidth() / 2, LayoutParams.FILL_PARENT);
+			jParams = ((MandelbrotFractalView) fractalView).getJuliaParams(39*relativeLayout.getWidth() / 80, LayoutParams.FILL_PARENT);
 
 			((JuliaFractalView) littleFractalView).setJuliaParameter(jParams[0], jParams[1]);
 		} else {
@@ -480,7 +499,7 @@ public class FractalActivity extends Activity implements OnTouchListener, OnScal
 		double[] juliaParams = mjLocation.defaultJuliaParams;
 		double[] juliaGraphArea = mjLocation.defaultJuliaGraphArea;
 
-		LayoutParams lp = new LayoutParams(relativeLayout.getWidth() / 2, LayoutParams.FILL_PARENT);
+		LayoutParams lp = new LayoutParams(39*relativeLayout.getWidth() / 80, LayoutParams.FILL_PARENT);
 		lp.addRule(relativeLayout.ALIGN_PARENT_RIGHT);
 		fractalView.rotation = mRotation;
 		relativeLayout.addView(fractalView, lp);
@@ -540,7 +559,7 @@ public class FractalActivity extends Activity implements OnTouchListener, OnScal
 /*-----------------------------------------------------------------------------------*/
    @Override
    public boolean onCreateOptionsMenu(Menu menu) {
-      super.onCreateOptionsMenu(menu);
+      //super.onCreateOptionsMenu(menu);
       MenuInflater inflater = getMenuInflater();
       inflater.inflate(R.menu.mainmenu, menu);
       
@@ -570,157 +589,185 @@ public class FractalActivity extends Activity implements OnTouchListener, OnScal
 
    @Override
    public boolean onOptionsItemSelected(MenuItem item) {
-      switch (item.getItemId()) {
-      case R.id.testlocation:
-    	  fractalView.setToTestLocation();
-    	  return true;
-    	  
-      case R.id.toggleLittle:
-    	  if(showingLittle) {
-    		  removeLittleView();
-    	  }
-    	  else {
-    		  addLittleView(true);
-    	  }
-    	  return true;
-    	  
-      case R.id.resetFractal:
-          fractalView.setRotation(0);
-    	  fractalView.reset();
-    	  if (showingLittle) {
-			  littleFractalView.reset();
-		  }
-		  return true;
-    	  
-      case R.id.saveImage:
-    	  saveImage();
-    	  return true;
-    	  
-      case R.id.shareImage:
-    	  shareImage();
-    	  return true;
-    	  
-      case R.id.preferences:
-    	  startActivity(new Intent(this, Prefs.class));
-    	  return true;
-    	  
-      case R.id.details:
-    	  startActivityForResult(new Intent(this, DetailControl.class), RETURN_FROM_DETAIL_CHANGE);
-    	  return true;
-    	  
-      case R.id.help:
-    	  showHelpDialog();
-    	  return true;
-    	  
-      case R.id.printbookmark:
-    	  setBookmark();
-    	  return true;
-    	  
-      case R.id.loadbookmark:
-    	  loadBookmark();
-    	  return true;
+	   switch (item.getItemId()) {
+		   case R.id.testlocation:
+			   fractalView.setToTestLocation();
+			   return true;
 
-      case R.id.toggleDisplayDomains:
-          if(displayingDomains) {
-          	fractalView.reset();
-			  stopDisplayingDomains();
-			  //fractalView.stopZooming();
-			  //fractalView.zoomChange(0,0,1);
-			  //fractalView.setGraphArea(fractalView.graphArea, true);
-          }else{
-              if (fractalView.fractalViewSize == FractalViewSize.HALF){stopEqualViews();}
-              fractalView.reset();
-              displayDomains();
-			  fractalView.postInvalidate();
-			  //fractalView.stopZooming();
-			  //fractalView.zoomChange(0,0,1);
-			  //fractalView.setGraphArea(fractalView.graphArea, true);
-		  }
-          return true;
+		   case R.id.toggleLittle:
+			   if (showingLittle) {
+				   removeLittleView();
+			   } else {
+				   addLittleView(true);
+			   }
+			   return true;
 
-      case R.id.makeViewsEqual:
-		  if (fractalView.fractalViewSize != FractalViewSize.HALF) {
-			  makeViewsEqual();
-		  }else{
-		  	stopEqualViews();
-		  }
-          return true;
+		   case R.id.resetFractal:
+			   fractalView.setRotation(0);
+			   fractalView.reset();
+			   showPoint = false;
+			   if (showingLittle) {
+				   littleFractalView.reset();
+			   }
+			   return true;
 
-      case R.id.showCurrentMPoint:
-          if (fractalView.fractalViewSize != FractalViewSize.HALF) makeViewsEqual();
-          fractalView.drawPin = false;
-          mPoint = lastFoundMPoint;
-          mMPointRotation = mPoint.getmRotation();
-          jMPointRotation = mPoint.getjRotation();
-          mMPointBase = 1.1;
-          jMPointBase = 1.1;
-          pointCounterLimit = 80;
-          showPoint = true;
-		  startTimer();
-          return true;
+		   case R.id.saveImage:
+			   saveImage();
+			   return true;
+
+		   case R.id.shareImage:
+			   shareImage();
+			   return true;
+
+		   case R.id.preferences:
+			   startActivity(new Intent(this, Prefs.class));
+			   return true;
+
+		   case R.id.details:
+			   startActivityForResult(new Intent(this, DetailControl.class), RETURN_FROM_DETAIL_CHANGE);
+			   return true;
+
+		   case R.id.help:
+			   showHelpDialog();
+			   return true;
+
+		   case R.id.printbookmark:
+			   setBookmark();
+			   return true;
+
+		   case R.id.loadbookmark:
+			   loadBookmark();
+			   return true;
+
+		   case R.id.toggleDisplayMDomains:
+			   if (displayingMDomains) {
+				   showPoint = false;
+				   fractalView.reset();
+				   stopDisplayingMDomains();
+			   } else {
+				   if (fractalView.fractalViewSize == FractalViewSize.HALF) {
+					   stopEqualViews();
+				   }
+				   if (displayingADomains){
+					   stopDisplayingADomains();
+				   }
+				   fractalView.reset();
+				   displayMDomains();
+				   fractalView.postInvalidate();
+			   }
+			   return true;
+
+		   case R.id.toggleDisplayADomains:
+			   if (displayingADomains) {
+				   showPoint = false;
+				   fractalView.reset();
+				   stopDisplayingADomains();
+			   } else {
+				   if (fractalView.fractalViewSize == FractalViewSize.HALF) {
+					   stopEqualViews();
+				   }
+				   if (displayingMDomains){
+					   stopDisplayingMDomains();
+				   }
+				   fractalView.reset();
+				   displayADomains();
+				   fractalView.postInvalidate();
+			   }
+			   return true;
+
+		   case R.id.makeViewsEqual:
+			   if (fractalView.fractalViewSize != FractalViewSize.HALF) {
+				   makeViewsEqual();
+			   } else {
+				   stopEqualViews();
+			   }
+			   return true;
+
+		   case R.id.showCurrentMPoint:
+			   if (fractalView.fractalViewSize != FractalViewSize.HALF) makeViewsEqual();
+			   fractalView.drawPin = false;
+			   mMPoint = lastFoundMPoint;
+			   jMPoint = lastFoundMPoint.alpha0;
+			   mMPointRotation = mMPoint.getmRotation();
+			   jMPointRotation = mMPoint.getjRotation();
+			   mPointBase = 1.1;
+			   magnificationDiff = (mMPoint.getjMagnification() - mMPoint.getmMagnification());
+			   Log.d("MagDiffCheck", "magDiff = " + magnificationDiff);
+			   pointCounterLimit = 100;
+			   showPoint = true;
+			   startTimer();
+			   return true;
 
 
-      case R.id.showMPoint1:
-		  if (fractalView.fractalViewSize != FractalViewSize.HALF) makeViewsEqual();
-      	  fractalView.drawPin = false;
-		  mPoint = new MisiurewiczPoint(-0.77568377, 0.13646737, 0, 0);
-		  mMPointRotation = 0;
-		  jMPointRotation = 0;
-		  mMPointRotation = mPoint.getmRotation();
-		  jMPointRotation = mPoint.getjRotation();
-		  pointCounterLimit = 100;
-		  showPoint = true;
-          startTimer();
-          return true;
+		   case R.id.showMPoint1:
+			   if (fractalView.fractalViewSize != FractalViewSize.HALF) makeViewsEqual();
+			   fractalView.drawPin = false;
+			   mMPoint = new MisiurewiczPoint(-0.77568377, 0.13646737, 23, 2);
+			   mPointBase = 1.1;
+			   mMPointRotation = mMPoint.getmRotation();
+			   jMPointRotation = mMPoint.getjRotation();
+			   mMPoint.jMagnificationFactor = 6.4489;
+			   mMPoint.mMagnificationFactor = 5.1808;
+			   pointCounterLimit = 100;
+			   showPoint = true;
+			   startTimer();
+			   return true;
 
-	  case R.id.showMPoint2:
-		  if (fractalView.fractalViewSize != FractalViewSize.HALF) makeViewsEqual();
-		  fractalView.drawPin = false;
-		  mPoint = new MisiurewiczPoint(-1.54368901269109, 0, 0 ,0);
-		  mMPointRotation = mPoint.getmRotation();
-		  jMPointRotation = mPoint.getjRotation();
-		  mMPointBase = 1.09;
-		  jMPointBase = 1.1;
-		  pointCounterLimit = 100;
-		  showPoint = true;
-	  	  startTimer();
-	  	  return true;
+		   case R.id.showMPoint2:
+			   if (fractalView.fractalViewSize != FractalViewSize.HALF) makeViewsEqual();
+			   fractalView.drawPin = false;
+			   mMPoint = new MisiurewiczPoint(-1.54368901269109, 0, 3, 1);
+			   mMPointRotation = mMPoint.getmRotation();
+			   jMPointRotation = mMPoint.getjRotation();
+			   mPointBase = 1.1;
+			   pointCounterLimit = 100;
+			   showPoint = true;
+			   startTimer();
+			   return true;
 
-	  case R.id.showMPoint3:
-		  if (fractalView.fractalViewSize != FractalViewSize.HALF) makeViewsEqual();
-		  fractalView.drawPin = false;
-		  mPoint = new MisiurewiczPoint(-0.1011, 0.95629, 0,0);
-		  mMPointBase = 1.1;
-		  jMPointBase = 1.1;
-		  mMPointRotation = 2.73161481;
-		  jMPointRotation = 3.1119221;
-		  pointCounterLimit = 68;
-		  showPoint = true;
-		  Log.d("MPoint Info","X = " + mPoint.getX());
-		  Log.d("MPoint Info","Y = " + mPoint.getY());
-		  Log.d("MPoint Info","JRotation =  " + mPoint.getjRotation());
-		  Log.d("MPoint Info","MRotation =  " + mPoint.getmRotation());
-		  Log.d("MPoint Info","Preperiod =  " + mPoint.getPreperiod());
-		  Log.d("MPoint Info","Period =  " + mPoint.getPeriod());
-		  Log.d("MPoint Info","u' = " + mPoint.getmMagnification());
-		  Log.d("MPoint Info","a = " + mPoint.getjMagnification());
-		  startTimer();
-		  return true;
+		   case R.id.showMPoint3:
+			   Log.d("MPoint Info", "pixelSize = " + fractalView.getPixelSize());
+			   if (fractalView.fractalViewSize != FractalViewSize.HALF) makeViewsEqual();
+			   fractalView.drawPin = false;
+			   mMPoint = new MisiurewiczPoint(-0.1011, 0.95629, 3, 1);
+			   mPointBase = 1.1;
+			   mMPointRotation = 2.73161481;
+			   jMPointRotation = 3.1119221;
+			   mMPoint.jMagnificationFactor = 6.4489;
+			   mMPoint.mMagnificationFactor = 5.1808;
 
-		case R.id.showMPoint4:
-			if (fractalView.fractalViewSize != FractalViewSize.HALF) makeViewsEqual();
-		  fractalView.drawPin = false;
-		  mPoint = new MisiurewiczPoint(-0.745429, 0.113008, 0,0);
-		  mMPointBase = 1.125;
-		  jMPointBase = 1.1;
-			mMPointRotation = mPoint.getmRotation();
-			jMPointRotation = mPoint.getjRotation();
-		  pointCounterLimit = 95;
-		  showPoint = true;
-		  startTimer();
-		  return true;
+			   pointCounterLimit = 120;
+			   showPoint = true;
+			   Log.d("MPoint Info", "X = " + mMPoint.getX());
+			   Log.d("MPoint Info", "Y = " + mMPoint.getY());
+			   Log.d("MPoint Info", "JRotation =  " + mMPoint.getjRotation());
+			   Log.d("MPoint Info", "MRotation =  " + mMPoint.getmRotation());
+			   Log.d("MPoint Info", "Preperiod =  " + mMPoint.getPreperiod());
+			   Log.d("MPoint Info", "Period =  " + mMPoint.getPeriod());
+			   Log.d("MPoint Info", "u' = " + mMPoint.uDash.getX() + " + " + mMPoint.uDash.getY() + "i");
+			   Log.d("MPoint Info", "a = " + mMPoint.a.getX() + " + " + mMPoint.a.getY() + "i");
 
-        }
+			   startTimer();
+			   return true;
+
+		   case R.id.showMPoint4:
+			   if (fractalView.fractalViewSize != FractalViewSize.HALF) makeViewsEqual();
+			   fractalView.drawPin = false;
+			   mMPoint = new MisiurewiczPoint(-0.745429, 0.113008, 0, 0);
+			   mPointBase = 1.1;
+			   mMPointRotation = mMPoint.getmRotation();
+			   jMPointRotation = mMPoint.getjRotation();
+			   mMPoint.jMagnificationFactor = 6.4489;
+			   mMPoint.mMagnificationFactor = 5.1808;
+			   pointCounterLimit = 150;
+			   showPoint = true;
+			   startTimer();
+			   return true;
+
+		  case R.id.choosePeriod:
+			  startActivityForResult(new Intent(this, ChoosePeriod.class), RETURN_FROM_PERIOD_CHANGE);
+			  return true;
+	   }
       return false;
    }
 
@@ -1025,35 +1072,79 @@ public class FractalActivity extends Activity implements OnTouchListener, OnScal
 	
 	/* Detect a long click, place the Julia pin or select a doamin to find the Misiurewicz point for that domain */
 	public boolean onLongClick(View v) {
-	    if (displayingDomains){
+	    if (displayingMDomains){
             double[] clickPoint = ((MandelbrotFractalView)fractalView).getTranslatedTouch(dragLastX, dragLastY);
+            if (0 >= ((MandelbrotFractalView)fractalView).f(clickPoint[0], clickPoint[1],fractalView.getMaxIterations()) && (clickPoint[0] * clickPoint[1]) > 4
+					|| ((MandelbrotFractalView)fractalView).f(clickPoint[0], clickPoint[1],fractalView.getMaxIterations()) < 0){
+				Context context = getApplicationContext();
+				CharSequence text = "Please select a domain";
+				int duration = Toast.LENGTH_SHORT;
+				Toast toast = Toast.makeText(context, text, duration);
+				toast.show();
+            	return true;
+			}
             ComplexPoint touchCompPoint = new ComplexPoint(clickPoint[0], clickPoint[1]);
             int preperiod = MisiurewiczDomainUtill.whatIsPreperiod(touchCompPoint, ((MandelbrotFractalView)fractalView).getCurrentPeriod(), 25);
-            if(preperiod != 0){
-                lastFoundMPoint = ((MandelbrotFractalView)fractalView).findMPoint(preperiod, touchCompPoint);
+            if(preperiod > 0){
+                MisiurewiczPoint tempFoundMPoint = ((MandelbrotFractalView)fractalView).findMPoint(preperiod, touchCompPoint);
 				int maxItterations = fractalView.getMaxIterations();
-                boolean isInside = 0 > ((MandelbrotFractalView)fractalView).f(lastFoundMPoint.getX(), lastFoundMPoint.getY(),maxItterations);
+				if (0 > ((MandelbrotFractalView)fractalView).f(tempFoundMPoint.getX(), tempFoundMPoint.getY(),maxItterations)
+						|| !(ComplexPoint.isValid(tempFoundMPoint)) || !(ComplexPoint.isValid(tempFoundMPoint.uDash)) || (ComplexPoint.abv(tempFoundMPoint.uDash) == 0)){
+					Context context = getApplicationContext();
+					CharSequence text = "Sorry finding point failed";
+					int duration = Toast.LENGTH_SHORT;
+					Toast toast = Toast.makeText(context, text, duration);
+					toast.show();
+					Log.d("MPoint Info","Point finding failed");
+					Log.d("MPoint Info","MaxItterations = " + maxItterations);
+					Log.d("MPoint Info","X = " + tempFoundMPoint.getX());
+					Log.d("MPoint Info","Y = " + tempFoundMPoint.getY());
+					Log.d("MPoint Info","MRotation =  " + tempFoundMPoint.getmRotation());
+					Log.d("MPoint Info","JRotation =  " + tempFoundMPoint.getjRotation());
+					Log.d("MPoint Info","Preperiod =  " + tempFoundMPoint.getPreperiod());
+					Log.d("MPoint Info","Period =  " + tempFoundMPoint.getPeriod());
+					Log.d("MPoint Info","u' = " + tempFoundMPoint.getUDash().getX() + " + " + tempFoundMPoint.getUDash().getY() + "i");
+					Log.d("MPoint Info","a = " + tempFoundMPoint.getA().getX() + " + " + tempFoundMPoint.getA().getY() + "i");
+					Log.d("MPoint Info", "mMag = " + tempFoundMPoint.getmMagnification());
+					Log.d("MPoint Info", "jMag = " + tempFoundMPoint.getjMagnification());
+					return true; }
+				Context context = getApplicationContext();
+				CharSequence text = "l = " + tempFoundMPoint.getPreperiod() + " p = " + tempFoundMPoint.getPeriod() + "\n X = " + tempFoundMPoint.getX() + "\n Y = " + tempFoundMPoint.getY();
+				int duration = Toast.LENGTH_SHORT;
+				Toast toast = Toast.makeText(context, text, duration);
+				toast.show();
+				lastFoundMPoint = tempFoundMPoint;
 				Log.d("MPoint Info","MaxItterations = " + maxItterations);
-				if (isInside){
-					Log.d("MPoint Info","Inside");
-				}else{
-					Log.d("MPoint Info","Outside");
-				}
 				Log.d("MPoint Info","X = " + lastFoundMPoint.getX());
 				Log.d("MPoint Info","Y = " + lastFoundMPoint.getY());
-				Log.d("MPoint Info","JRotation =  " + lastFoundMPoint.getjRotation());
 				Log.d("MPoint Info","MRotation =  " + lastFoundMPoint.getmRotation());
+				Log.d("MPoint Info","JRotation =  " + lastFoundMPoint.getjRotation());
 				Log.d("MPoint Info","Preperiod =  " + lastFoundMPoint.getPreperiod());
 				Log.d("MPoint Info","Period =  " + lastFoundMPoint.getPeriod());
-				Log.d("MPoint Info","u' = " + lastFoundMPoint.getmMagnification());
-				Log.d("MPoint Info","a = " + lastFoundMPoint.getjMagnification());
+				Log.d("MPoint Info","u' = " + lastFoundMPoint.getUDash().getX() + " + " + lastFoundMPoint.getUDash().getY() + "i");
+				Log.d("MPoint Info","a = " + lastFoundMPoint.getA().getX() + " + " + lastFoundMPoint.getA().getY() + "i");
+				Log.d("MPoint Info", "mMag = " + lastFoundMPoint.getmMagnification());
+				Log.d("MPoint Info", "jMag = " + lastFoundMPoint.getjMagnification());
+				double biggest = lastFoundMPoint.mMagnificationFactor;
+				int i = 1;
+				while (Math.pow(1.1, -i) * biggest < 0.5){
+					i ++ ;
+				}
+				setback = i + 10;
 
-			}
+			}else{
+                Context context = getApplicationContext();
+                CharSequence text = "Please select a domain";
+                int duration = Toast.LENGTH_SHORT;
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();
+                return true;
+            }
             return true;
 	    }else {
             // Check that it's not scaling, dragging (check for dragging is a little hacky, but seems to work), or already holding the pin
             if (!gestureDetector.isInProgress() && fractalView.totalDragX < 1 && fractalView.totalDragY < 1 && !fractalView.holdingPin) {
-                if (fractalView.fractalViewSize == FractalViewSize.HALF && dragLastX < relativeLayout.getWidth() / 2) {
+                if (fractalView.fractalViewSize == FractalViewSize.HALF && dragLastX < relativeLayout.getWidth()) {
                     return false;
                 }
                 updateLittleJulia((float) dragLastX, (float) dragLastY);
@@ -1071,16 +1162,28 @@ public class FractalActivity extends Activity implements OnTouchListener, OnScal
 /*FindMisiurewiczPoints*/
 /*-----------------------------------------------------------------------------------*/
 
-    public void displayDomains(){
+    public void displayMDomains(){
         //fractalView.reset();
         removeLittleView();
-        displayingDomains = true;
+        displayingMDomains = true;
         ((MandelbrotFractalView)fractalView).displayDomains(period);
     }
 
-    public void stopDisplayingDomains(){
-        displayingDomains = false;
+    public void stopDisplayingMDomains(){
+        displayingMDomains = false;
         ((MandelbrotFractalView)fractalView).stopDisplayingDomains();
+	}
+
+	public void displayADomains(){
+		//fractalView.reset();
+		removeLittleView();
+		displayingADomains = true;
+		((MandelbrotFractalView)fractalView).displayADomains();
+	}
+
+	public void stopDisplayingADomains(){
+		displayingADomains = false;
+		((MandelbrotFractalView)fractalView).stopDisplayingADomains();
 	}
 /*-----------------------------------------------------------------------------------*/
 /*Utilities*/
@@ -1213,6 +1316,7 @@ public class FractalActivity extends Activity implements OnTouchListener, OnScal
 	}
 
 
+
 	/* Show the short tutorial/intro dialog */
 	private void showIntro() {		
 		TextView text = new TextView(this);
@@ -1299,15 +1403,26 @@ public class FractalActivity extends Activity implements OnTouchListener, OnScal
 	}
 
 	private void showMPoint() {
-		mMagnification = (int) (Math.pow(mMPointBase, pointCounter));
-		jMagnification = (int) (Math.pow(jMPointBase, pointCounter));
-		//double progrssPercentage = (pointCounter + 1)/pointCounterLimit;
-		//mMagnification = (int) (Math.pow(mMPointBase, pointCounter) * (6.4489 * (pointCounter + 1)/pointCounterLimit));
-		//jMagnification = (int) (Math.pow(mMPointBase, pointCounter) * (5.1808 * (pointCounter + 1)/pointCounterLimit));
-		//mMagnification = (int) (Math.pow(mMPointBase, pointCounter) * (mPoint.getmMagnification() * (pointCounter + 1)/pointCounterLimit));
-		//jMagnification = (int) (Math.pow(mMPointBase, pointCounter) * (mPoint.getjMagnification()* (pointCounter + 1)/pointCounterLimit));
-        fractalView.rotation = mMPointRotation * (pointCounter + 1)/pointCounterLimit;
-		littleFractalView.rotation = jMPointRotation * (pointCounter + 1)/pointCounterLimit;
+		double tempjMag;
+		double tempmMag;
+		if (Math.pow(mPointBase, (pointCounter - setback)) * (mMPoint.getjMagnification()) < 1){// * counterFrac) < 1) {
+			tempjMag = (1);
+		} else {
+			tempjMag = (Math.pow(mPointBase, (pointCounter - setback)) * (mMPoint.getjMagnification()));// * counterFrac));
+		}
+		jMagnification = tempjMag;
+
+		if (Math.pow(mPointBase, (pointCounter - setback))* (mMPoint.getmMagnification()) < 1){// * counterFrac) < 1) {
+			tempmMag = (1);
+		} else {
+			tempmMag = (Math.pow(mPointBase, (pointCounter - setback)) * (mMPoint.getmMagnification()));// * counterFrac);
+		}
+		mMagnification = tempmMag;
+
+		Log.d("magnification check", "mMagninfication = " + mMagnification + "jMagnification = " + jMagnification);
+		Log.d("rotation Check", "mandelbrot rotation = " + fractalView.rotation + " julia rotation = " + littleFractalView.rotation);
+        fractalView.rotation = mMPointRotation * (pointCounter)/pointCounterLimit;
+		littleFractalView.rotation = jMPointRotation * (pointCounter)/pointCounterLimit;
 		fractalView.canvasHome();
 		updateLittleJulia(0,0);
 	}
@@ -1327,13 +1442,16 @@ public class FractalActivity extends Activity implements OnTouchListener, OnScal
 
     //To start timer
     private void startTimer(){
-		pointCounter = 0;
+		pointCounter = 1;
+		jMagnification = 1;
+		mMagnification = 1;
+		littleFractalView.graphArea = fractalView.graphArea;
 		pointTimer = new Timer();
         pointTimerTask = new TimerTask() {
             public void run() {
                 handler.post(new Runnable() {
                     public void run(){
-                        if(pointCounter < pointCounterLimit) {
+                        if(pointCounter <= pointCounterLimit) {
                         	showMPoint();
 
                         }else{
